@@ -63,6 +63,21 @@ async function run() {
             const result = await postCollection.find().toArray();
             res.send(result);
         });
+        const { ObjectId } = require('mongodb');
+
+        app.get('/listings/:id', async (req, res) => {
+            const id = req.params.id;
+            const result = await postCollection.findOne({ _id: new ObjectId(id) });
+            res.send(result);
+        });
+
+        app.get('/listings/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const result = await postCollection.find({ userEmail: email }).toArray();
+            res.send(result);
+        });
+
+
 
 
 
