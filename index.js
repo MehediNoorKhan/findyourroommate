@@ -14,8 +14,7 @@ app.use(express.json());
 //password: LKEtQadh8I7LnSvH
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.9u7caon.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
-
-
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -31,6 +30,7 @@ async function run() {
 
         const database = client.db("roommate_finder");
         const userCollection = database.collection("users");
+        const postCollection = database.collection('posts');
 
         app.post('/users', async (req, res) => {
             const users = req.body;
@@ -51,6 +51,19 @@ async function run() {
             }
             res.send(user);
         });
+
+        app.post('/listings', async (req, res) => {
+            const post = req.body;
+            const result = await postCollection.insertOne(post);
+
+            res.send(result);
+        });
+        app.get('/listings', async (req, res) => {
+            const listing = req.body;
+            const result = await postCollection.find().toArray();
+            res.send(result);
+        });
+
 
 
 
