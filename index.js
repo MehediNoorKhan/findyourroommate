@@ -76,6 +76,17 @@ async function run() {
             const result = await postCollection.find({ userEmail: email }).toArray();
             res.send(result);
         });
+        
+        app.delete('/listings/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await postCollection.deleteOne(query);
+            res.send(result);
+        });
+
+
+
+
 
 
 
