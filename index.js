@@ -76,11 +76,33 @@ async function run() {
             const result = await postCollection.find({ userEmail: email }).toArray();
             res.send(result);
         });
-        
+
         app.delete('/listings/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await postCollection.deleteOne(query);
+            res.send(result);
+        });
+        
+        app.put('/listings/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedData = req.body;
+
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    title: updatedData.title,
+                    location: updatedData.location,
+                    rent: updatedData.rent,
+                    roomType: updatedData.roomType,
+                    lifestyle: updatedData.lifestyle,
+                    description: updatedData.description,
+                    contact: updatedData.contact,
+                    availability: updatedData.availability,
+                },
+            };
+
+            const result = await postCollection.updateOne(filter, updateDoc);
             res.send(result);
         });
 
