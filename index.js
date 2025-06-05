@@ -83,7 +83,7 @@ async function run() {
             const result = await postCollection.deleteOne(query);
             res.send(result);
         });
-        
+
         app.put('/listings/:id', async (req, res) => {
             const id = req.params.id;
             const updatedData = req.body;
@@ -101,6 +101,13 @@ async function run() {
                     availability: updatedData.availability,
                 },
             };
+
+            // Add testimonial
+            app.post('/testimonials', async (req, res) => {
+                const review = req.body;
+                const result = await testimonials.insertOne(review);
+                res.send(result);
+            });
 
             const result = await postCollection.updateOne(filter, updateDoc);
             res.send(result);
