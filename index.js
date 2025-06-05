@@ -109,6 +109,11 @@ async function run() {
                 res.send(result);
             });
 
+            app.get('/testimonials', async (req, res) => {
+                const result = await testimonials.find().toArray();
+                res.send(result);
+            });
+
             const result = await postCollection.updateOne(filter, updateDoc);
             res.send(result);
         });
