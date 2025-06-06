@@ -38,6 +38,7 @@ async function run() {
             const result = await userCollection.insertOne(users);
             res.send(result);
         });
+
         app.get('/users', async (req, res) => {
             const users = req.body;
             const result = await userCollection.find().toArray();
@@ -53,6 +54,11 @@ async function run() {
             res.send(user);
         });
 
+
+
+
+
+
         app.post('/listings', async (req, res) => {
             const post = req.body;
             const result = await postCollection.insertOne(post);
@@ -64,7 +70,7 @@ async function run() {
             const result = await postCollection.find().toArray();
             res.send(result);
         });
-        const { ObjectId } = require('mongodb');
+
 
         app.get('/listings/:id', async (req, res) => {
             const id = req.params.id;
@@ -122,8 +128,7 @@ async function run() {
             res.send(result);
         });
 
-        //like count
-        // Increment like count
+
         app.patch('/listings/like/:id', async (req, res) => {
             const id = req.params.id;
             const { email } = req.body;
@@ -147,6 +152,9 @@ async function run() {
                 res.status(500).send({ error: 'Failed to update likes' });
             }
         });
+
+        
+
 
 
 
