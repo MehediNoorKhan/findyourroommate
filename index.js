@@ -126,18 +126,30 @@ async function run() {
         // Increment like count
         app.patch('/listings/like/:id', async (req, res) => {
             const id = req.params.id;
+            const { email } = req.body;
 
             try {
                 const filter = { _id: new ObjectId(id) };
-                const update = { $inc: { likes: 1 } };
 
-                const result = await postCollection.updateOne(filter, update);
-                res.send(result);
+                const post = await postCollection.findOne(filter);
+                if (!post.likedBy?.includes(email)) {
+                    const update = {
+                        $inc: { likes: 1 },
+                        $addToSet: { likedBy: email }, // prevents duplicates
+                    };
+                    await postCollection.updateOne(filter, update);
+                }
+
+                const updatedPost = await postCollection.findOne(filter);
+                res.send({ likes: updatedPost.likes, likedBy: updatedPost.likedBy });
             } catch (err) {
                 console.error(err);
                 res.status(500).send({ error: 'Failed to update likes' });
             }
         });
+
+
+
 
 
         await client.db("admin").command({ ping: 1 });
