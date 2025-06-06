@@ -85,6 +85,8 @@ async function run() {
             res.send(result);
         });
 
+        //update of post data 
+
         app.put('/listings/:id', async (req, res) => {
             const id = req.params.id;
             const updatedData = req.body;
