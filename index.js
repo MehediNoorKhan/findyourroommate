@@ -31,6 +31,7 @@ async function run() {
         const database = client.db("roommate_finder");
         const userCollection = database.collection("users");
         const postCollection = database.collection('posts');
+        const testimonialCollection = database.collection('testimonials');
 
         app.post('/users', async (req, res) => {
             const users = req.body;
@@ -102,30 +103,39 @@ async function run() {
                 },
             };
 
-            // Add testimonial
-            app.post('/testimonials', async (req, res) => {
-                const review = req.body;
-                const result = await testimonials.insertOne(review);
-                res.send(result);
-            });
-
-            app.get('/testimonials', async (req, res) => {
-                const result = await testimonials.find().toArray();
-                res.send(result);
-            });
-
             const result = await postCollection.updateOne(filter, updateDoc);
             res.send(result);
         });
 
 
+        // Add testimonial
+        app.post('/testimonials', async (req, res) => {
+            const review = req.body;
+            const result = await testimonialCollection.insertOne(review);
+            res.send(result);
+        });
 
+        app.get('/testimonials', async (req, res) => {
+            const result = await testimonialCollection.find().toArray();
+            res.send(result);
+        });
 
+        //like count
+        // Increment like count
+        app.patch('/listings/like/:id', async (req, res) => {
+            const id = req.params.id;
 
+            try {
+                const filter = { _id: new ObjectId(id) };
+                const update = { $inc: { likes: 1 } };
 
-
-
-
+                const result = await postCollection.updateOne(filter, update);
+                res.send(result);
+            } catch (err) {
+                console.error(err);
+                res.status(500).send({ error: 'Failed to update likes' });
+            }
+        });
 
 
         await client.db("admin").command({ ping: 1 });
