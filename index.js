@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+require("dotenv").config();
 console.log(process.env.DB_USER);
 console.log(process.env.DB_PASS);
 const app = express();
@@ -21,79 +21,72 @@ const client = new MongoClient(uri, {
         strict: true,
         deprecationErrors: true,
         tls: true,
-    }
+    },
 });
 async function run() {
     try {
-
         await client.connect();
 
         const database = client.db("roommate_finder");
         const userCollection = database.collection("users");
-        const postCollection = database.collection('posts');
-        const testimonialCollection = database.collection('testimonials');
+        const postCollection = database.collection("posts");
+        const testimonialCollection = database.collection("testimonials");
 
-        app.post('/users', async (req, res) => {
+        app.post("/users", async (req, res) => {
             const users = req.body;
             const result = await userCollection.insertOne(users);
             res.send(result);
         });
 
-        app.get('/users', async (req, res) => {
+        app.get("/users", async (req, res) => {
             const users = req.body;
             const result = await userCollection.find().toArray();
             res.send(result);
         });
-        app.get('/users/:email', async (req, res) => {
+        app.get("/users/:email", async (req, res) => {
             const email = req.params.email;
             const user = await userCollection.findOne({ email: email });
             if (!user) {
-                res.status(404).send({ message: 'User not found' });
+                res.status(404).send({ message: "User not found" });
                 return;
             }
             res.send(user);
         });
 
-
-
-
-
-
-        app.post('/listings', async (req, res) => {
+        app.post("/listings", async (req, res) => {
             const post = req.body;
             const result = await postCollection.insertOne(post);
 
             res.send(result);
         });
-        app.get('/listings', async (req, res) => {
+        app.get("/listings", async (req, res) => {
             const listing = req.body;
             const result = await postCollection.find().toArray();
             res.send(result);
         });
 
-
-        app.get('/listings/:id', async (req, res) => {
+        app.get("/listings/:id", async (req, res) => {
             const id = req.params.id;
             const result = await postCollection.findOne({ _id: new ObjectId(id) });
             res.send(result);
         });
 
-        app.get('/listings/user/:email', async (req, res) => {
+        app.get("/listings/user/:email", async (req, res) => {
             const email = req.params.email;
             const result = await postCollection.find({ userEmail: email }).toArray();
             res.send(result);
         });
 
-        app.delete('/listings/:id', async (req, res) => {
+        app.delete("/listings/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await postCollection.deleteOne(query);
             res.send(result);
         });
 
-        //update of post data 
+        //update of post data
 
-        app.put('/listings/:id', async (req, res) => {
+        app.put("/listings/:id", async (req, res) => {
             const id = req.params.id;
             const updatedData = req.body;
 
@@ -115,53 +108,55 @@ async function run() {
             res.send(result);
         });
 
+        // app.post('/testimonials', async (req, res) => {
+        //     const review = req.body;
+        //     const result = await testimonials.insertOne(review);
+        //     res.send(result);
+        // });
 
-        // Add testimonial
-        app.post('/testimonials', async (req, res) => {
-            const review = req.body;
+        app.post("/testimonials", async (req, res) => {
+            const { name, location, message, image } = req.body;
+            if (!name || !location || !message || !image) {
+                return res.status(400).send({ error: "All fields are required" });
+            }
+            const review = { name, location, message, image };
             const result = await testimonialCollection.insertOne(review);
             res.send(result);
         });
 
-        app.get('/testimonials', async (req, res) => {
-            const result = await testimonialCollection.find().toArray();
-            res.send(result);
+        // GET testimonials (optional)
+        app.get("/testimonials", async (req, res) => {
+            const reviews = await testimonialCollection.find().toArray();
+            res.send(reviews);
         });
 
-
-        app.patch('/listings/like/:id', async (req, res) => {
+        app.patch("/listings/like/:id", async (req, res) => {
             const id = req.params.id;
             const { email } = req.body;
 
             try {
                 const filter = { _id: new ObjectId(id) };
 
-                const post = await postCollection.findOne(filter);
-                if (!post.likedBy?.includes(email)) {
-                    const update = {
-                        $inc: { likes: 1 },
-                        $addToSet: { likedBy: email }, // prevents duplicates
-                    };
-                    await postCollection.updateOne(filter, update);
-                }
+                const update = {
+                    $inc: { likes: 1 },
+                    $addToSet: { likedBy: email },
+                };
+
+                await postCollection.updateOne(filter, update);
 
                 const updatedPost = await postCollection.findOne(filter);
-                res.send({ likes: updatedPost.likes, likedBy: updatedPost.likedBy });
+                res.send({ likes: updatedPost.likes });
             } catch (err) {
                 console.error(err);
-                res.status(500).send({ error: 'Failed to update likes' });
+                res.status(500).send({ error: "Failed to update likes" });
             }
         });
 
-        
-
-
-
-
-
 
         await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        console.log(
+            "Pinged your deployment. You successfully connected to MongoDB!"
+        );
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
@@ -169,11 +164,10 @@ async function run() {
 }
 run().catch(console.dir);
 
-app.get('/', (req, res) => {
-    res.send('Roommate finder');
+app.get("/", (req, res) => {
+    res.send("Roommate finder");
 });
 
 app.listen(port, (req, res) => {
-    console.log('Who is there?');
-})
-
+    console.log("Who is there?");
+});
