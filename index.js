@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 });
 async function run() {
     try {
-        await client.connect();
+        // await client.connect();
 
         const database = client.db("roommate_finder");
         const userCollection = database.collection("users");
@@ -65,10 +65,12 @@ async function run() {
             res.send(result);
         });
 
-        app.get("/listings/:id", async (req, res) => {
+        // Get a listing by ID
+        app.get('/listings/:id', async (req, res) => {
             const id = req.params.id;
-            const result = await postCollection.findOne({ _id: new ObjectId(id) });
-            res.send(result);
+            const query = { _id: new ObjectId(id) };
+            const post = await postCollection.findOne(query);
+            res.send(post);
         });
 
         app.get("/listings/user/:email", async (req, res) => {
@@ -84,9 +86,9 @@ async function run() {
             res.send(result);
         });
 
-        //update of post data
 
-        app.put("/listings/:id", async (req, res) => {
+        // Update a listing
+        app.put('/listings/:id', async (req, res) => {
             const id = req.params.id;
             const updatedData = req.body;
 
@@ -108,12 +110,6 @@ async function run() {
             res.send(result);
         });
 
-        // app.post('/testimonials', async (req, res) => {
-        //     const review = req.body;
-        //     const result = await testimonials.insertOne(review);
-        //     res.send(result);
-        // });
-
         app.post("/testimonials", async (req, res) => {
             const { name, location, message, image } = req.body;
             if (!name || !location || !message || !image) {
@@ -124,7 +120,6 @@ async function run() {
             res.send(result);
         });
 
-        // GET testimonials (optional)
         app.get("/testimonials", async (req, res) => {
             const reviews = await testimonialCollection.find().toArray();
             res.send(reviews);
@@ -153,10 +148,8 @@ async function run() {
         });
 
 
-        await client.db("admin").command({ ping: 1 });
-        console.log(
-            "Pinged your deployment. You successfully connected to MongoDB!"
-        );
+        await client.db("admin");
+
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
