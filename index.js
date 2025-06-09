@@ -1,7 +1,7 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-require("dotenv").config();
 console.log(process.env.DB_USER);
 console.log(process.env.DB_PASS);
 const app = express();
@@ -148,7 +148,7 @@ async function run() {
         });
 
 
-        await client.db("admin");
+        // await client.db("admin");
 
     } finally {
         // Ensures that the client will close when you finish/error
